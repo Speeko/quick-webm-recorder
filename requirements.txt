@@ -1,0 +1,2 @@
+pynput>=1.7.6
+PyGObject>=3.42.0
