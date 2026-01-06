@@ -4,10 +4,13 @@ A lightweight ShareX-style screen region recorder for Linux (X11). Select a regi
 
 ## Features
 
-- **Global hotkey** - Trigger recording from anywhere (default: Super+Shift+C)
+- **Global hotkeys** - Separate hotkeys for MP4 and GIF recording
+  - MP4: Super+Shift+C (default)
+  - GIF: Super+Shift+G (default)
 - **Region selection** - Click and drag to select any screen region
-- **System audio capture** - Records what you hear through PulseAudio/PipeWire
+- **System audio capture** - Records what you hear through PulseAudio/PipeWire (MP4 only)
 - **H.264/MP4 output** - Compatible with all devices and platforms
+- **High-quality GIF output** - Uses palette generation for optimal colors
 - **Quality presets** - Choose from Lossless, High, Medium, Low, or Tiny
 - **Clipboard integration** - File path copied automatically after recording
 - **System tray** - Runs quietly in your system tray
@@ -35,11 +38,13 @@ python src/main.py
 
 ## Usage
 
-1. Press the hotkey (Super+Shift+C) to start selection
+1. Press the hotkey to start selection:
+   - **Super+Shift+C** for MP4 video (with audio)
+   - **Super+Shift+G** for GIF (no audio, smaller files)
 2. Click and drag to select the recording region
 3. Click "Start Recording" or press the hotkey again
 4. Click "Finish and Save" or press the hotkey to stop
-5. The MP4 file path is copied to your clipboard
+5. The file path is copied to your clipboard
 
 Press Escape at any time to cancel.
 
@@ -47,11 +52,12 @@ Press Escape at any time to cancel.
 
 Right-click the tray icon and select "Settings" to configure:
 
-- **Hotkey** - Click "Listen..." and press your preferred key combination
+- **MP4 Hotkey** - Click "Listen..." and press your preferred key combination
+- **GIF Hotkey** - Separate hotkey for GIF recording
 - **Output folder** - Where recordings are saved
-- **Framerate** - 10-60 fps
+- **Framerate** - 10-60 fps (GIF uses 15 fps by default for smaller files)
 - **Quality** - Lossless, High, Medium, Low, or Tiny presets
-- **Audio source** - Auto-detect, specific device, or no audio
+- **Audio source** - Auto-detect, specific device, or no audio (MP4 only)
 
 Settings are saved to `~/.config/quick-webm-recorder/settings.json`
 

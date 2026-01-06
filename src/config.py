@@ -16,8 +16,10 @@ QUALITY_PROFILES = {
 
 DEFAULT_CONFIG = {
     "hotkey": "<cmd>+<shift>+c",
+    "hotkey_gif": "<cmd>+<shift>+g",
     "output_dir": "~/Videos/Recordings",
     "framerate": 30,
+    "gif_framerate": 15,  # Lower framerate for smaller GIFs
     "quality_profile": "medium",  # One of QUALITY_PROFILES keys
     "audio_source": "auto",  # "auto", "none", or specific source name
 }
@@ -57,6 +59,24 @@ class Config:
     @hotkey.setter
     def hotkey(self, value):
         self._config["hotkey"] = value
+        self.save()
+
+    @property
+    def hotkey_gif(self):
+        return self._config.get("hotkey_gif", "<cmd>+<shift>+g")
+
+    @hotkey_gif.setter
+    def hotkey_gif(self, value):
+        self._config["hotkey_gif"] = value
+        self.save()
+
+    @property
+    def gif_framerate(self):
+        return self._config.get("gif_framerate", 15)
+
+    @gif_framerate.setter
+    def gif_framerate(self, value):
+        self._config["gif_framerate"] = int(value)
         self.save()
 
     @property

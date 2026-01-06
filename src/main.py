@@ -19,11 +19,16 @@ class App:
     def __init__(self):
         self.state = self.IDLE
         self.selection = None
+        self._gif_mode = False  # Track if recording GIF or MP4
 
         self.config = Config()
         self.recorder = Recorder(self.config)
         self.overlay = SelectionManager()
+
+        # Hotkey for MP4 recording
         self.hotkey = HotkeyListener(self.on_hotkey, self.config.hotkey)
+        # Hotkey for GIF recording
+        self.hotkey_gif = HotkeyListener(self.on_hotkey_gif, self.config.hotkey_gif)
 
         self.overlay.on_selection_complete = self.on_selection_complete
         self.overlay.on_cancel = self.on_cancel
@@ -54,16 +59,31 @@ class App:
         about.run()
         about.destroy()
 
-    def _on_settings_closed(self, hotkey_changed):
-        if hotkey_changed:
-            # Restart hotkey listener with new hotkey
+    def _on_settings_closed(self, hotkeys_changed):
+        if hotkeys_changed:
+            # Restart hotkey listeners with new hotkeys
             self.hotkey.stop()
+            self.hotkey_gif.stop()
             self.hotkey = HotkeyListener(self.on_hotkey, self.config.hotkey)
+            self.hotkey_gif = HotkeyListener(self.on_hotkey_gif, self.config.hotkey_gif)
             self.hotkey.start()
-            print(f"Hotkey updated to: {self.config.hotkey}")
+            self.hotkey_gif.start()
+            print(f"Hotkeys updated - MP4: {self.config.hotkey}, GIF: {self.config.hotkey_gif}")
 
     def on_hotkey(self):
+        """Handle MP4 recording hotkey."""
         if self.state == self.IDLE:
+            self._gif_mode = False
+            self.start_selection()
+        elif self.state == self.READY:
+            self.start_recording()
+        elif self.state == self.RECORDING:
+            self.stop_recording()
+
+    def on_hotkey_gif(self):
+        """Handle GIF recording hotkey."""
+        if self.state == self.IDLE:
+            self._gif_mode = True
             self.start_selection()
         elif self.state == self.READY:
             self.start_recording()
@@ -88,8 +108,9 @@ class App:
         self.state = self.RECORDING
         self.overlay.set_recording(True)  # Updates border color and button text
         x, y, w, h = self.selection
-        self.recorder.start(x, y, w, h)
-        print(f"Recording started: {w}x{h}")
+        self.recorder.start(x, y, w, h, gif_mode=self._gif_mode)
+        mode = "GIF" if self._gif_mode else "MP4"
+        print(f"Recording {mode}: {w}x{h}")
 
     def stop_recording(self):
         output_path = self.recorder.stop()
@@ -112,14 +133,17 @@ class App:
 
     def run(self):
         print("Quick WebM Recorder started")
-        print(f"Hotkey: {self.config.hotkey}")
+        print(f"MP4 Hotkey: {self.config.hotkey}")
+        print(f"GIF Hotkey: {self.config.hotkey_gif}")
         self.hotkey.start()
+        self.hotkey_gif.start()
         try:
             Gtk.main()
         except KeyboardInterrupt:
             pass
         finally:
             self.hotkey.stop()
+            self.hotkey_gif.stop()
             if self.recorder.is_recording():
                 self.recorder.stop()
             print("Exiting...")
@@ -136,13 +160,15 @@ class SettingsWindow(Gtk.Window):
         self.config = config
         self.on_close_callback = on_close_callback
         self.original_hotkey = config.hotkey
+        self.original_hotkey_gif = config.hotkey_gif
 
         # Hotkey capture state
         self._listening = False
+        self._listening_target = None  # 'mp4' or 'gif'
         self._hotkey_listener = None
         self._captured_keys = set()
 
-        self.set_default_size(450, 320)
+        self.set_default_size(450, 380)
         self.set_border_width(12)
         self.set_position(Gtk.WindowPosition.CENTER)
         self.connect('delete-event', self._on_delete)
@@ -151,21 +177,37 @@ class SettingsWindow(Gtk.Window):
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
         self.add(vbox)
 
-        # Hotkey setting with Listen button
+        # MP4 Hotkey setting with Listen button
         hotkey_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
-        hotkey_label = Gtk.Label(label="Hotkey:")
+        hotkey_label = Gtk.Label(label="MP4 Hotkey:")
         hotkey_label.set_xalign(0)
         hotkey_label.set_size_request(100, -1)
         self.hotkey_entry = Gtk.Entry()
         self.hotkey_entry.set_text(config.hotkey)
         self.hotkey_entry.set_editable(False)
         self.listen_btn = Gtk.Button(label="Listen...")
-        self.listen_btn.connect('clicked', self._on_listen_clicked)
+        self.listen_btn.connect('clicked', lambda b: self._on_listen_clicked('mp4'))
         self.listen_btn.set_tooltip_text("Click then press your desired hotkey combination")
         hotkey_box.pack_start(hotkey_label, False, False, 0)
         hotkey_box.pack_start(self.hotkey_entry, True, True, 0)
         hotkey_box.pack_start(self.listen_btn, False, False, 0)
         vbox.pack_start(hotkey_box, False, False, 0)
+
+        # GIF Hotkey setting with Listen button
+        hotkey_gif_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        hotkey_gif_label = Gtk.Label(label="GIF Hotkey:")
+        hotkey_gif_label.set_xalign(0)
+        hotkey_gif_label.set_size_request(100, -1)
+        self.hotkey_gif_entry = Gtk.Entry()
+        self.hotkey_gif_entry.set_text(config.hotkey_gif)
+        self.hotkey_gif_entry.set_editable(False)
+        self.listen_gif_btn = Gtk.Button(label="Listen...")
+        self.listen_gif_btn.connect('clicked', lambda b: self._on_listen_clicked('gif'))
+        self.listen_gif_btn.set_tooltip_text("Click then press your desired hotkey combination")
+        hotkey_gif_box.pack_start(hotkey_gif_label, False, False, 0)
+        hotkey_gif_box.pack_start(self.hotkey_gif_entry, True, True, 0)
+        hotkey_gif_box.pack_start(self.listen_gif_btn, False, False, 0)
+        vbox.pack_start(hotkey_gif_box, False, False, 0)
 
         # Output directory
         output_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
@@ -240,19 +282,25 @@ class SettingsWindow(Gtk.Window):
         button_box.pack_start(save_btn, False, False, 0)
         vbox.pack_end(button_box, False, False, 0)
 
-    def _on_listen_clicked(self, button):
+    def _on_listen_clicked(self, target):
         if self._listening:
             self._stop_listening()
         else:
-            self._start_listening()
+            self._start_listening(target)
 
-    def _start_listening(self):
+    def _start_listening(self, target):
         from pynput import keyboard
         from gi.repository import GLib
         self._listening = True
+        self._listening_target = target
         self._captured_keys = set()
-        self.listen_btn.set_label("Press keys...")
-        self.hotkey_entry.set_text("Press hotkey combination...")
+
+        if target == 'mp4':
+            self.listen_btn.set_label("Press keys...")
+            self.hotkey_entry.set_text("Press hotkey combination...")
+        else:
+            self.listen_gif_btn.set_label("Press keys...")
+            self.hotkey_gif_entry.set_text("Press hotkey combination...")
 
         def on_press(key):
             self._captured_keys.add(key)
@@ -274,6 +322,7 @@ class SettingsWindow(Gtk.Window):
             self._hotkey_listener.stop()
             self._hotkey_listener = None
         self.listen_btn.set_label("Listen...")
+        self.listen_gif_btn.set_label("Listen...")
 
     def _finish_capture(self):
         from pynput import keyboard
@@ -304,7 +353,10 @@ class SettingsWindow(Gtk.Window):
 
         if parts:
             hotkey_str = "+".join(parts)
-            self.hotkey_entry.set_text(hotkey_str)
+            if self._listening_target == 'mp4':
+                self.hotkey_entry.set_text(hotkey_str)
+            else:
+                self.hotkey_gif_entry.set_text(hotkey_str)
 
         self._stop_listening()
 
@@ -325,15 +377,17 @@ class SettingsWindow(Gtk.Window):
     def _on_save(self, button):
         self._stop_listening()  # Stop listening if active
         self.config.hotkey = self.hotkey_entry.get_text()
+        self.config.hotkey_gif = self.hotkey_gif_entry.get_text()
         self.config.output_dir = self.output_entry.get_text()
         self.config.framerate = int(self.fps_spin.get_value())
         self.config.quality_profile = self.quality_combo.get_active_id()
         self.config.audio_source = self.audio_combo.get_active_id()
 
-        hotkey_changed = (self.config.hotkey != self.original_hotkey)
+        hotkeys_changed = (self.config.hotkey != self.original_hotkey or
+                          self.config.hotkey_gif != self.original_hotkey_gif)
         self.hide()
         if self.on_close_callback:
-            self.on_close_callback(hotkey_changed)
+            self.on_close_callback(hotkeys_changed)
 
     def _on_cancel(self, button):
         self._stop_listening()
