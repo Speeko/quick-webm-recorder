@@ -33,7 +33,9 @@ class Recorder:
         # Build ffmpeg command - using H.264 for speed and compatibility
         cmd = [
             'ffmpeg', '-y',
+            # Video input with x11grab
             '-f', 'x11grab',
+            '-thread_queue_size', '512',  # Larger buffer to prevent frame drops
             '-framerate', str(framerate),
             '-video_size', f'{w}x{h}',
             '-i', f':0.0+{x},{y}',
@@ -42,18 +44,26 @@ class Recorder:
         # Add audio capture if configured
         audio_source = self.config.get_resolved_audio_source()
         if audio_source:
-            cmd.extend(['-f', 'pulse', '-i', audio_source])
             cmd.extend([
-                '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', str(quality),
-                '-c:a', 'aac', '-b:a', '128k',
-                '-pix_fmt', 'yuv420p',  # Compatibility with all players
+                '-f', 'pulse',
+                '-thread_queue_size', '512',
+                '-i', audio_source,
             ])
+
+        # Video encoding options
+        cmd.extend([
+            '-c:v', 'libx264',
+            '-preset', 'ultrafast',
+            '-crf', str(quality),
+            '-pix_fmt', 'yuv420p',
+            '-vsync', 'cfr',  # Constant frame rate to prevent timing glitches
+        ])
+
+        # Audio encoding if we have audio
+        if audio_source:
+            cmd.extend(['-c:a', 'aac', '-b:a', '128k'])
             print(f"Recording with audio from: {audio_source}")
         else:
-            cmd.extend([
-                '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', str(quality),
-                '-pix_fmt', 'yuv420p',
-            ])
             print("Recording video only (no audio)")
 
         cmd.append(self.output_path)
