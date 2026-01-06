@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Quick WebM Recorder
+Comment=Lightweight screen region recorder
+Exec=bash -c "cd /home/brett/Documents/GitHub/quick-webm-recorder && source venv/bin/activate && python src/main.py"
+Icon=camera-video
+Terminal=false
+Type=Application
+Categories=AudioVideo;Recorder;GTK;
+Keywords=screen;record;capture;video;webm;mp4;
+StartupNotify=false
