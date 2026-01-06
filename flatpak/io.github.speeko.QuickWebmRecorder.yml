@@ -1,6 +1,6 @@
 app-id: io.github.speeko.QuickWebmRecorder
 runtime: org.gnome.Platform
-runtime-version: '46'
+runtime-version: '47'
 sdk: org.gnome.Sdk
 command: quick-webm-recorder
 
@@ -25,17 +25,25 @@ modules:
         --prefix=${FLATPAK_DEST} "pynput" --no-build-isolation
     sources:
       - type: file
-        url: https://files.pythonhosted.org/packages/2b/27/1a33e3cabf17a7b8b60e528d4a050276e237c09e71d602ea8a624584b236/evdev-1.7.1.tar.gz
-        sha256: 0c72c370bda29d857e188d931019c32651a9c1ea977c08c8d939b1ced1637fde
+        url: https://files.pythonhosted.org/packages/63/fe/a17c106a1f4061ce83f04d14bcedcfb2c38c7793ea56bfb906a6fadae8cb/evdev-1.9.2.tar.gz
+        sha256: 5d3278892ce1f92a74d6bf888cc8525d9f68af85dbe336c95d1c87fb8f423069
       - type: file
-        url: https://files.pythonhosted.org/packages/3f/0b/de69b69cbf684dac5a8e27b26f1cd8a2e61ca64e8ecb130e8ea7ed8a893c/pynput-1.7.7-py2.py3-none-any.whl
-        sha256: cd6591e7ccc5cc8ff5e39e29260a9a0aba67178c9ddc168eb78bc702a8f0c5b0
+        url: https://files.pythonhosted.org/packages/59/4f/ac3fa906ae8a375a536b12794128c5efacade9eaa917a35dfd27ce0c7400/pynput-1.8.1-py2.py3-none-any.whl
+        sha256: 42dfcf27404459ca16ca889c8fb8ffe42a9fe54f722fd1a3e130728e59e768d2
       - type: file
-        url: https://files.pythonhosted.org/packages/fc/57/92f1d820d74091c1cafc78697e65c9cddf3c5f0b5be86ebdddae02e79556/python_xlib-0.33-py2.py3-none-any.whl
-        sha256: b4262d4e440b91afdf71719d8fbb7a8a1e5874f087a26cc64a9c7ef3b874518d
+        url: https://files.pythonhosted.org/packages/fc/b8/ff33610932e0ee81ae7f1269c890f697d56ff74b9f5b2ee5d9b7fa2c5355/python_xlib-0.33-py2.py3-none-any.whl
+        sha256: c3534038d42e0df2f1392a1b30a15a4ff5fdc2b86cfa94f072bf11b10a164398
       - type: file
-        url: https://files.pythonhosted.org/packages/76/53/73869eed1beaf43d4fd79b7f80da3d1aa2fd20e51eb2c634bbed47ff5140/six-1.16.0-py2.py3-none-any.whl
-        sha256: 8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
+        url: https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl
+        sha256: 4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274
+
+  # libXmu (required for xclip)
+  - name: libXmu
+    buildsystem: autotools
+    sources:
+      - type: archive
+        url: https://www.x.org/releases/individual/lib/libXmu-1.2.1.tar.gz
+        sha256: bf0902583dd1123856c11e0a5085bd3c6e9886fbbd44954464975fd7d52eb599
 
   # xclip for clipboard
   - name: xclip
@@ -43,7 +51,7 @@ modules:
     sources:
       - type: archive
         url: https://github.com/astrand/xclip/archive/refs/tags/0.13.tar.gz
-        sha256: ca5b8804e3c910a66423a882d79bf3c9450b875ac8528571f39c6f0d855a000d
+        sha256: ca5b8804e3c910a66423a882d79bf3c9450b875ac8528791fb60ec9de667f758
 
   # Main application
   - name: quick-webm-recorder
@@ -58,6 +66,7 @@ modules:
       - install -Dm644 flatpak/io.github.speeko.QuickWebmRecorder.desktop ${FLATPAK_DEST}/share/applications/io.github.speeko.QuickWebmRecorder.desktop
       - install -Dm644 flatpak/io.github.speeko.QuickWebmRecorder.metainfo.xml ${FLATPAK_DEST}/share/metainfo/io.github.speeko.QuickWebmRecorder.metainfo.xml
       - install -Dm644 flatpak/io.github.speeko.QuickWebmRecorder.svg ${FLATPAK_DEST}/share/icons/hicolor/scalable/apps/io.github.speeko.QuickWebmRecorder.svg
+      - install -Dm644 LICENSE ${FLATPAK_DEST}/share/licenses/io.github.speeko.QuickWebmRecorder/LICENSE
     sources:
       - type: dir
         path: ..
