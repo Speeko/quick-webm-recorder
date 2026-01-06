@@ -5,7 +5,9 @@ import cairo
 
 
 class SelectionManager:
-    """Manages region selection using a transparent fullscreen overlay."""
+    """Manages region selection using a semi-transparent fullscreen overlay."""
+
+    OVERLAY_OPACITY = 0.3  # Darkness of the overlay (0-1)
 
     def __init__(self):
         # Selection state
@@ -13,6 +15,10 @@ class SelectionManager:
         self.end_x = self.end_y = 0
         self.is_dragging = False
         self.selection = None  # (x, y, w, h) when complete
+
+        # Screen geometry for coordinate translation
+        self._screen_x = 0
+        self._screen_y = 0
 
         # Border window for visual feedback
         self.border_window = BorderWindow()
@@ -26,13 +32,13 @@ class SelectionManager:
         self.on_start_recording = None
         self.on_stop_recording = None
 
-        # Fullscreen transparent overlay for capturing mouse events
+        # Fullscreen overlay for capturing mouse events
         self._overlay = Gtk.Window(type=Gtk.WindowType.POPUP)
         self._overlay.set_decorated(False)
         self._overlay.set_app_paintable(True)
         self._overlay.set_keep_above(True)
 
-        # Enable RGBA for true transparency
+        # Enable RGBA for transparency
         screen = self._overlay.get_screen()
         visual = screen.get_rgba_visual()
         if visual:
@@ -81,10 +87,33 @@ class SelectionManager:
             self.toolbar.position_below(self.selection)
 
     def _on_draw(self, widget, cr):
-        # Paint completely transparent
-        cr.set_source_rgba(0, 0, 0, 0)
+        alloc = widget.get_allocation()
+
+        # Fill with semi-transparent dark overlay
+        cr.set_source_rgba(0, 0, 0, self.OVERLAY_OPACITY)
         cr.set_operator(cairo.OPERATOR_SOURCE)
         cr.paint()
+
+        # If dragging, cut out the selection area to show it clearly
+        if self.is_dragging:
+            # Calculate selection rectangle in window coordinates
+            x1 = min(self.start_x, self.end_x) - self._screen_x
+            y1 = min(self.start_y, self.end_y) - self._screen_y
+            x2 = max(self.start_x, self.end_x) - self._screen_x
+            y2 = max(self.start_y, self.end_y) - self._screen_y
+
+            # Clear the selection area (make it fully transparent)
+            cr.set_operator(cairo.OPERATOR_SOURCE)
+            cr.set_source_rgba(0, 0, 0, 0)
+            cr.rectangle(x1, y1, x2 - x1, y2 - y1)
+            cr.fill()
+
+            # Draw a white border around the selection
+            cr.set_operator(cairo.OPERATOR_OVER)
+            cr.set_source_rgb(1, 1, 1)
+            cr.set_line_width(2)
+            cr.rectangle(x1, y1, x2 - x1, y2 - y1)
+            cr.stroke()
 
     def show_for_selection(self):
         self.selection = None
@@ -110,6 +139,10 @@ class SelectionManager:
             max_x = max(max_x, geom.x + geom.width)
             max_y = max(max_y, geom.y + geom.height)
 
+        # Store screen offset for coordinate translation
+        self._screen_x = min_x
+        self._screen_y = min_y
+
         self._overlay.move(min_x, min_y)
         self._overlay.resize(max_x - min_x, max_y - min_y)
         self._overlay.show_all()
@@ -134,10 +167,8 @@ class SelectionManager:
         if self.is_dragging:
             self.end_x = int(event.x_root)
             self.end_y = int(event.y_root)
-            self.border_window.update_rect(
-                self.start_x, self.start_y,
-                self.end_x, self.end_y
-            )
+            # Redraw overlay to show selection cutout
+            self._overlay.queue_draw()
 
     def on_button_release(self, widget, event):
         if self.is_dragging and event.button == 1:
