@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Quick WebM Recorder
+Comment=Lightweight screen region recorder
+Exec=quick-webm-recorder
+Icon=io.github.speeko.QuickWebmRecorder
+Terminal=false
+Type=Application
+Categories=AudioVideo;Recorder;GTK;
+Keywords=screen;record;capture;video;webm;mp4;
+StartupNotify=false

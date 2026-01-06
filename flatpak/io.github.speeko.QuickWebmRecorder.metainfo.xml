@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.speeko.QuickWebmRecorder</id>
+  <name>Quick WebM Recorder</name>
+  <summary>Lightweight screen region recorder</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <developer id="io.github.speeko">
+    <name>Spekks</name>
+  </developer>
+  <description>
+    <p>
+      A lightweight ShareX-style screen region recorder for Linux. Select a region,
+      record video with system audio, and get the file path copied to your clipboard.
+    </p>
+    <p>Features:</p>
+    <ul>
+      <li>Global hotkey to trigger recording from anywhere</li>
+      <li>Click and drag to select any screen region</li>
+      <li>Records system audio through PulseAudio/PipeWire</li>
+      <li>H.264/MP4 output compatible with all devices</li>
+      <li>Quality presets from Lossless to Tiny</li>
+      <li>File path automatically copied to clipboard</li>
+      <li>Runs quietly in your system tray</li>
+    </ul>
+  </description>
+  <launchable type="desktop-id">io.github.speeko.QuickWebmRecorder.desktop</launchable>
+  <url type="homepage">https://github.com/Speeko/quick-webm-recorder</url>
+  <url type="bugtracker">https://github.com/Speeko/quick-webm-recorder/issues</url>
+  <url type="vcs-browser">https://github.com/Speeko/quick-webm-recorder</url>
+  <screenshots>
+    <screenshot type="default">
+      <caption>Region selection with darkened overlay</caption>
+      <image>https://raw.githubusercontent.com/Speeko/quick-webm-recorder/master/screenshots/selection.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Settings window</caption>
+      <image>https://raw.githubusercontent.com/Speeko/quick-webm-recorder/master/screenshots/settings.png</image>
+    </screenshot>
+  </screenshots>
+  <content_rating type="oars-1.1" />
+  <releases>
+    <release version="1.0.0" date="2026-01-06">
+      <description>
+        <p>Initial release</p>
+        <ul>
+          <li>Screen region recording with audio</li>
+          <li>Global hotkey support</li>
+          <li>System tray integration</li>
+          <li>Quality presets</li>
+          <li>Configurable settings</li>
+        </ul>
+      </description>
+    </release>
+  </releases>
+  <categories>
+    <category>AudioVideo</category>
+    <category>Recorder</category>
+    <category>GTK</category>
+  </categories>
+  <keywords>
+    <keyword>screen</keyword>
+    <keyword>record</keyword>
+    <keyword>capture</keyword>
+    <keyword>video</keyword>
+    <keyword>webm</keyword>
+    <keyword>mp4</keyword>
+    <keyword>screencast</keyword>
+  </keywords>
+  <requires>
+    <display_length compare="ge">360</display_length>
+  </requires>
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+  </supports>
+</component>
