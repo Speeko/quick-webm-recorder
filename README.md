@@ -55,6 +55,19 @@ Right-click the tray icon and select "Settings" to configure:
 
 Settings are saved to `~/.config/quick-webm-recorder/settings.json`
 
+## Known Issues
+
+### Flickering/flashing in recordings
+
+When recording GPU-accelerated windows (browsers, video players, games), you may see occasional frame flashes where parts of the window briefly disappear. This is a limitation of x11grab screen capture on composited desktops.
+
+**Workarounds:**
+- Disable hardware acceleration in the app you're recording (e.g., Chrome: Settings → System → disable "Use hardware acceleration")
+- Temporarily disable compositor effects (Mint: System Settings → Effects)
+- Use a lower framerate (24 fps tends to be more stable)
+
+This affects most x11grab-based recorders. A future version may implement PipeWire portal capture for flicker-free recording.
+
 ## License
 
 MIT License
