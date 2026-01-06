@@ -35,8 +35,10 @@ class Recorder:
             'ffmpeg', '-y',
             # Video input with x11grab
             '-f', 'x11grab',
-            '-thread_queue_size', '512',  # Larger buffer to prevent frame drops
+            '-thread_queue_size', '1024',  # Larger buffer to prevent frame drops
+            '-probesize', '10M',
             '-framerate', str(framerate),
+            '-draw_mouse', '1',
             '-video_size', f'{w}x{h}',
             '-i', f':0.0+{x},{y}',
         ]
