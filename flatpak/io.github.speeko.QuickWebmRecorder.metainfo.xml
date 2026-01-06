@@ -31,11 +31,15 @@
   <screenshots>
     <screenshot type="default">
       <caption>Region selection with darkened overlay</caption>
-      <image>https://raw.githubusercontent.com/Speeko/quick-webm-recorder/master/screenshots/selection.png</image>
+      <image>https://raw.githubusercontent.com/Speeko/quick-webm-recorder/master/screenshots/screenshot-1.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Recording in progress</caption>
+      <image>https://raw.githubusercontent.com/Speeko/quick-webm-recorder/master/screenshots/screenshot-2.png</image>
     </screenshot>
     <screenshot>
       <caption>Settings window</caption>
-      <image>https://raw.githubusercontent.com/Speeko/quick-webm-recorder/master/screenshots/settings.png</image>
+      <image>https://raw.githubusercontent.com/Speeko/quick-webm-recorder/master/screenshots/screenshot-3.png</image>
     </screenshot>
   </screenshots>
   <content_rating type="oars-1.1" />
