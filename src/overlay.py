@@ -440,6 +440,7 @@ class BorderWindow(Gtk.Window):
         border = self.BORDER_WIDTH
         self.move(x - border, y - border)
         self.resize(w + border * 2, h + border * 2)
+        self.show_all()
         self.queue_draw()
         self._update_input_shape()
 
